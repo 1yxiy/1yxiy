@@ -226,6 +226,21 @@
             padding-bottom: 40px;
         }
 
+        .date-divider {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .date-divider.light {
+            color: #8e8e93;
+        }
+
+        .date-divider.dark {
+            color: #8e8e93;
+        }
+
         .message-group {
             margin-bottom: 15px;
         }
@@ -383,15 +398,17 @@
         
         <label style="margin-top: 15px;">
             메시지 내용<br>
-            <small style="color: #8e8e93;">형식: &lt;수신인 / 시간 / 발신인&gt;<br>[보낸 내용]<br>줄바꿈으로 여러 메시지 입력</small>
+            <small style="color: #8e8e93;">형식: -m월d일- <br>&lt;수신인 / 시간 / 발신인&gt;<br>[보낸 내용]<br>줄바꿈으로 여러 메시지 입력</small>
             <textarea id="messageInput" placeholder="예시:
-< 수신인 / 00:00 / 발신인 >
-[메시지 1]
-[메시지 2]
+-00월 00일-
 
-< 발신인 / 00:00 / 수신인 >
-[메시지 3]
-[메세지 4]"></textarea>
+<수신인 / 00:00  / 발신인>
+[메시지1]
+[메시지2]
+
+<발신인 / 09:21 AM / 수신인>
+[메시지3]
+[메시지4]"></textarea>
         </label>
         
         <label>
@@ -414,7 +431,7 @@
                 <span id="timeDisplay">00:00</span>
             </div>
             <div class="status-right">
-                <span class="battery-percent dark" id="batteryPercent">83<b>%</b></span>
+                <span class="battery-percent dark" id="batteryPercent">85<b>%</b></span>
                 <div class="battery-icon dark" id="batteryIcon">
                     <div class="battery-fill dark" id="batteryFill"></div>
                 </div>
@@ -489,11 +506,19 @@
             let messageGroups = [];
             let currentGroup = null;
 
-            // 헤더별로 메시지 그룹화
+            // 헤더별로 메시지 그룹화 및 날짜 처리
             lines.forEach(line => {
                 line = line.trim();
                 
-                if (line.startsWith('<') && line.includes('>')) {
+                // 날짜 감지: -m월 d일- 형식
+                if (line.startsWith('-') && line.endsWith('-')) {
+                    const dateText = line.substring(1, line.length - 1);
+                    messageGroups.push({
+                        type: 'date',
+                        text: dateText
+                    });
+                }
+                else if (line.startsWith('<') && line.includes('>')) {
                     const headerMatch = line.match(/<(.+?)>/);
                     if (headerMatch) {
                         const headerContent = headerMatch[1];
@@ -511,6 +536,7 @@
                             
                             // 새로운 그룹 시작
                             currentGroup = {
+                                type: 'message',
                                 sender,
                                 time,
                                 receiver,
@@ -520,7 +546,7 @@
                         }
                     }
                 }
-                else if (line.startsWith('[') && line.endsWith(']') && currentGroup) {
+                else if (line.startsWith('[') && line.endsWith(']') && currentGroup && currentGroup.type === 'message') {
                     const content = line.substring(1, line.length - 1);
                     currentGroup.messages.push(content);
                 }
@@ -528,15 +554,23 @@
 
             // 각 그룹을 렌더링
             messageGroups.forEach(group => {
-                group.messages.forEach((content, index) => {
-                    const isLastInGroup = index === group.messages.length - 1;
-                    addMessageToContainer(container, {
-                        sender: group.sender,
-                        time: group.time,
-                        receiver: group.receiver,
-                        content: content
-                    }, firstPerson, secondPerson, isLastInGroup);
-                });
+                if (group.type === 'date') {
+                    // 날짜 구분선 추가
+                    const dateDiv = document.createElement('div');
+                    dateDiv.className = `date-divider ${currentTheme}`;
+                    dateDiv.textContent = group.text;
+                    container.appendChild(dateDiv);
+                } else if (group.type === 'message') {
+                    group.messages.forEach((content, index) => {
+                        const isLastInGroup = index === group.messages.length - 1;
+                        addMessageToContainer(container, {
+                            sender: group.sender,
+                            time: group.time,
+                            receiver: group.receiver,
+                            content: content
+                        }, firstPerson, secondPerson, isLastInGroup);
+                    });
+                }
             });
 
             if (firstPerson && secondPerson) {
