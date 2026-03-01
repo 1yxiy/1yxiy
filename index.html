@@ -57,9 +57,8 @@
             height: 54px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             padding: 0 30px;
-            padding-top: 16px;
             font-size: 15px;
             font-weight: 600;
             position: relative;
@@ -227,11 +226,14 @@
         }
 
         .date-divider {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 13px;
-            font-weight: 600;
-        }
+    text-align: center;
+    margin: 20px 0;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+}
 
         .date-divider.light {
             color: #8e8e93;
@@ -448,6 +450,12 @@
             width: auto;
             margin: 0;
         }
+        #timeDisplay {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    line-height: 1;
+}
     </style>
 </head>
 <body>
@@ -491,7 +499,10 @@
             </div>
         </label>
         
-        <button onclick="renderMessages()"style="background: #007AFF; margin-top: 5px;">메시지 생성</button><br><br>
+        <button onclick="renderMessages()"style="background: #007AFF; margin-top: 5px;">메시지 생성</button>
+        <button onclick="resetAll()" style="background:#FF3B30; margin-top:5px;">
+    내용 초기화
+</button><br><br>
         <button onclick="saveAsImage()" style="background: #007AFF; margin-top: 5px;">이미지로 저장 (화면)</button>
         <button onclick="saveFullAsImage()" style="background: #34C759; margin-top: 5px;" class="secondary">이미지로 저장 (전체)</button>
     </div>
@@ -797,6 +808,20 @@
         }
 
         renderMessages();
+        function resetAll() {
+    // 입력창 초기화
+    document.getElementById('messageInput').value = '';
+
+    // 메시지 화면 비우기
+    document.getElementById('messagesContainer').innerHTML = '';
+
+    // 상단 이름/시간 초기화
+    document.getElementById('contactName').textContent = '대화 상대';
+    document.getElementById('timeDisplay').textContent = '00:00';
+
+    // 입력중 체크 해제
+    document.getElementById('showTyping').checked = false;
+}
     </script>
 </body>
 </html>
