@@ -78,35 +78,44 @@
         .status-left {
             display: flex;
             align-items: center;
-            gap: 3px;
+            height: 100%;
         }
 
         .status-right {
             display: flex;
             align-items: center;
             gap: 7px;
+            height: 100%;
         }
 
         .battery-percent {
-            font-size: 15px;
-            font-weight: 600;
-        }
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    position: relative;
+    top: 3px;
+}
 
-        .battery-percent.light {
-            color: #000;
-        }
+.battery-percent.light {
+    color: #000;
+}
 
-        .battery-percent.dark {
-            color: #fff;
-        }
+.battery-percent.dark {
+    color: #fff;
+}
 
-        .battery-icon {
-            width: 27px;
-            height: 13px;
-            border-radius: 3px;
-            position: relative;
-            padding: 2px;
-        }
+.battery-icon {
+    width: 27px;
+    height: 13px;
+    border-radius: 3px;
+    position: relative;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    top: 3px;
+}
 
         .battery-icon.light {
             border: 2px solid #000;
@@ -136,8 +145,8 @@
         }
 
         .battery-fill {
-            width: 85%;
             height: 100%;
+            transition: width 0.3s ease;
         }
 
         .battery-fill.light {
@@ -226,14 +235,14 @@
         }
 
         .date-divider {
-    text-align: center;
-    margin: 20px 0;
-    font-size: 13px;
-    font-weight: 700;
-    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.3px;
-}
+            text-align: center;
+            margin: 20px 0;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.3px;
+        }
 
         .date-divider.light {
             color: #8e8e93;
@@ -450,16 +459,92 @@
             width: auto;
             margin: 0;
         }
+
         #timeDisplay {
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
-    line-height: 1;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
+            top: 3px;
+        }
+
+        .battery-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .battery-input-group input[type="number"] {
+            width: 60px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        .battery-input-group span {
+            color: #8e8e93;
+        }
+        
+        .switch-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 600;
 }
-.battery-icon {
+
+.switch {
     position: relative;
-    top: -1px;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
 }
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: 0.3s;
+}
+
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    top: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+/* 입력중 표시 버튼 슬라이드 패딩*/
+.switch input:checked + .slider {
+    background-color: #34C759; /* iOS 초록 */
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+.switch {
+    position: relative;
+    top: 5px;
+}
+
     </style>
 </head>
 <body>
@@ -489,11 +574,22 @@
 [메시지 3]
 [메시지 4]"></textarea>
         </label>
+        
+        <div class="switch-row">
+    <span>입력중 표시 (발신인)</span>
+    <label class="switch">
+        <input type="checkbox" id="showTyping">
+        <span class="slider"></span>
+    </label>
+</div>
 
-        <div class="checkbox-container">
-            <input type="checkbox" id="showTyping" />
-            <label for="showTyping" style="margin: 0;">입력중 표시 (발신인)</label>
-        </div>
+        <label style="margin-top: 15px;">
+            배터리
+            <div class="battery-input-group">
+                <input type="number" id="batteryInput" min="0" max="100" value="83" onchange="updateBattery()">
+                <span>%</span>
+            </div>
+        </label>
         
         <label style="margin-top: 15px;">
             테마 선택
@@ -503,12 +599,19 @@
             </div>
         </label>
         
+        <label style="margin-top: 15px;">
+            설정
         <button onclick="renderMessages()"style="background: #007AFF; margin-top: 5px;">메시지 생성</button>
         <button onclick="resetAll()" style="background:#FF3B30; margin-top:5px;">
-    내용 초기화
-</button><br><br>
+            내용 초기화
+        </button>
+        </label>
+        
+        <label style="margin-top: 15px;">
+            사진 저장
         <button onclick="saveAsImage()" style="background: #007AFF; margin-top: 5px;">이미지로 저장 (화면)</button>
         <button onclick="saveFullAsImage()" style="background: #34C759; margin-top: 5px;" class="secondary">이미지로 저장 (전체)</button>
+        </label>
     </div>
 
     <div class="iphone-container">
@@ -521,7 +624,7 @@
             <div class="status-right">
                 <span class="battery-percent dark" id="batteryPercent">83<b>%</b></span>
                 <div class="battery-icon dark" id="batteryIcon">
-                    <div class="battery-fill dark" id="batteryFill"></div>
+                    <div class="battery-fill dark" id="batteryFill" style="width: 83%;"></div>
                 </div>
             </div>
         </div>
@@ -578,6 +681,18 @@
             if (document.getElementById('messagesContainer').children.length > 0) {
                 renderMessages();
             }
+        }
+
+        function updateBattery() {
+            let value = parseInt(document.getElementById('batteryInput').value);
+            
+            // 값 검증
+            if (isNaN(value) || value < 0) value = 0;
+            if (value > 100) value = 100;
+            
+            document.getElementById('batteryInput').value = value;
+            document.getElementById('batteryPercent').innerHTML = value + '<b>%</b>';
+            document.getElementById('batteryFill').style.width = value + '%';
         }
 
         function renderMessages() {
@@ -811,21 +926,26 @@
             }, 'image/png');
         }
 
-        renderMessages();
         function resetAll() {
-    // 입력창 초기화
-    document.getElementById('messageInput').value = '';
+            // 입력창 초기화
+            document.getElementById('messageInput').value = '';
 
-    // 메시지 화면 비우기
-    document.getElementById('messagesContainer').innerHTML = '';
+            // 메시지 화면 비우기
+            document.getElementById('messagesContainer').innerHTML = '';
 
-    // 상단 이름/시간 초기화
-    document.getElementById('contactName').textContent = '대화 상대';
-    document.getElementById('timeDisplay').textContent = '00:00';
+            // 상단 이름/시간 초기화
+            document.getElementById('contactName').textContent = '대화 상대';
+            document.getElementById('timeDisplay').textContent = '00:00';
 
-    // 입력중 체크 해제
-    document.getElementById('showTyping').checked = false;
-}
+            // 입력중 체크 해제
+            document.getElementById('showTyping').checked = false;
+
+            // 배터리 초기화
+            document.getElementById('batteryInput').value = 83;
+            updateBattery();
+        }
+
+        renderMessages();
     </script>
 </body>
 </html>
