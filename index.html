@@ -299,6 +299,53 @@
             text-align: left;
         }
 
+        .imsg-typing {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .imsg-typing-bubble {
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            padding: 10px 14px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .imsg-typing-bubble.light {
+            background: #e5e5ea;
+        }
+
+        .imsg-typing-bubble.dark {
+            background: #2c2c2e;
+        }
+
+        .imsg-typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: typing-bounce 1.4s ease-in-out infinite;
+        }
+
+        .imsg-typing-dot.light {
+            background: rgba(0,0,0,0.3);
+        }
+
+        .imsg-typing-dot.dark {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .imsg-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .imsg-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing-bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+        }
+
         .controls {
             background: rgba(0,0,0,0.8);
             padding: 20px;
@@ -367,6 +414,14 @@
             background: #0051D5;
         }
 
+        .controls button.secondary {
+            background: #5856D6;
+        }
+
+        .controls button.secondary:hover {
+            background: #4745B8;
+        }
+
         .theme-toggle {
             display: flex;
             gap: 10px;
@@ -380,6 +435,18 @@
 
         .theme-toggle button.active {
             background: #34C759;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin: 0;
         }
     </style>
 </head>
@@ -398,20 +465,25 @@
         
         <label style="margin-top: 15px;">
             메시지 내용<br>
-            <small style="color: #8e8e93;">형식: -m월 d일- <br>&lt;발신인 / 시간 / 수신인&gt;<br>[보낸 내용]<br>줄바꿈으로 여러 메시지 입력</small>
+            <small style="color: #8e8e93;">형식:<br>-MM월 DD일-<br> &lt; 발신인 / 시간 / 수신인 &gt;<br>[보낸 내용]<br>줄바꿈으로 여러 메시지 입력.</small>
             <textarea id="messageInput" placeholder="예시:
--00월 00일-
+-MM월 DD일-
 
 < 발신인 / 00:00 / 수신인 >
-[메시지1]
-[메시지2]
+[메시지 1]
+[메시지 2]
 
 < 수신인 / 00:00 / 발신인 >
-[메시지3]
-[메시지4]"></textarea>
+[메시지 3]
+[메시지 4]"></textarea>
         </label>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="showTyping" />
+            <label for="showTyping" style="margin: 0;">입력중 표시 (발신인)</label>
+        </div>
         
-        <label>
+        <label style="margin-top: 15px;">
             테마 선택
             <div class="theme-toggle">
                 <button onclick="setTheme('light')">라이트</button>
@@ -419,8 +491,9 @@
             </div>
         </label>
         
-        <button onclick="renderMessages()">메시지 생성</button>
-        <button onclick="saveAsImage()" style="background: #34C759; margin-top: 5px;">이미지로 저장</button>
+        <button onclick="renderMessages()"style="background: #007AFF; margin-top: 5px;">메시지 생성</button><br><br>
+        <button onclick="saveAsImage()" style="background: #007AFF; margin-top: 5px;">이미지로 저장 (화면)</button>
+        <button onclick="saveFullAsImage()" style="background: #34C759; margin-top: 5px;" class="secondary">이미지로 저장 (전체)</button>
     </div>
 
     <div class="iphone-container">
@@ -453,6 +526,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         let currentTheme = 'dark';
         let mePosition = 'second';
@@ -494,6 +568,7 @@
         function renderMessages() {
             const input = document.getElementById('messageInput').value.trim();
             const container = document.getElementById('messagesContainer');
+            const showTyping = document.getElementById('showTyping').checked;
             container.innerHTML = '';
 
             if (!input) return;
@@ -573,6 +648,23 @@
                 }
             });
 
+            // 입력중 표시 추가
+            if (showTyping && firstPerson && secondPerson) {
+                const myName = mePosition === 'first' ? firstPerson : secondPerson;
+                const otherName = mePosition === 'first' ? secondPerson : firstPerson;
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'imsg-typing';
+                typingDiv.innerHTML = `
+                    <div class="imsg-typing-bubble ${currentTheme}">
+                        <div class="imsg-typing-dot ${currentTheme}"></div>
+                        <div class="imsg-typing-dot ${currentTheme}"></div>
+                        <div class="imsg-typing-dot ${currentTheme}"></div>
+                    </div>
+                `;
+                container.appendChild(typingDiv);
+            }
+
             if (firstPerson && secondPerson) {
                 const myName = mePosition === 'first' ? firstPerson : secondPerson;
                 const otherName = mePosition === 'first' ? secondPerson : firstPerson;
@@ -619,17 +711,6 @@
         }
 
         async function saveAsImage() {
-            if (typeof html2canvas === 'undefined') {
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                script.onload = () => captureAndDownload();
-                document.head.appendChild(script);
-            } else {
-                captureAndDownload();
-            }
-        }
-
-        async function captureAndDownload() {
             const phoneContainer = document.querySelector('.iphone-container');
             
             const originalBg = document.body.style.background;
@@ -650,6 +731,66 @@
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'imessage-' + Date.now() + '.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+
+        async function saveFullAsImage() {
+            const messagesContainer = document.querySelector('.messages-container');
+            const phoneContainer = document.querySelector('.iphone-container');
+            
+            // 스크롤 높이 계산
+            const fullHeight = messagesContainer.scrollHeight;
+            const viewportHeight = messagesContainer.clientHeight;
+            
+            if (fullHeight <= viewportHeight) {
+                // 스크롤이 필요없으면 일반 저장
+                saveAsImage();
+                return;
+            }
+
+            // 임시로 높이 조정
+            const originalHeight = phoneContainer.style.height;
+            const originalOverflow = messagesContainer.style.overflow;
+            const originalScrollTop = messagesContainer.scrollTop;
+            
+            // 컨테이너 높이를 전체 컨텐츠 높이로 확장
+            const headerHeight = document.querySelector('.message-header').offsetHeight;
+            const statusBarHeight = document.querySelector('.status-bar').offsetHeight;
+            const newHeight = fullHeight + headerHeight + statusBarHeight + 24; // 24는 패딩
+            
+            phoneContainer.style.height = newHeight + 'px';
+            messagesContainer.style.overflow = 'visible';
+            messagesContainer.scrollTop = 0;
+
+            const originalBg = document.body.style.background;
+            document.body.style.background = 'transparent';
+
+            // 잠시 대기 (렌더링 완료)
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const canvas = await html2canvas(phoneContainer, {
+                backgroundColor: null,
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                height: newHeight,
+                windowHeight: newHeight
+            });
+            
+            // 원래대로 복원
+            phoneContainer.style.height = originalHeight;
+            messagesContainer.style.overflow = originalOverflow;
+            messagesContainer.scrollTop = originalScrollTop;
+            document.body.style.background = originalBg;
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'imessage-full-' + Date.now() + '.png';
                 a.click();
                 URL.revokeObjectURL(url);
             }, 'image/png');
