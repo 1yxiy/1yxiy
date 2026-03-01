@@ -545,6 +545,20 @@
     top: 5px;
 }
 
+/* 둥글둥글 */
+.controls button {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s ease;
+}
+
+
     </style>
 </head>
 <body>
@@ -562,8 +576,7 @@
         
         <label style="margin-top: 15px;">
             메시지 내용<br>
-            <small style="color: #8e8e93;">형식:<br>-MM월 DD일-<br> &lt; 발신인 / 시간 / 수신인 &gt;<br>[보낸 내용]<br>줄바꿈으로 여러 메시지 입력.</small>
-            <textarea id="messageInput" placeholder="예시:
+            <textarea id="messageInput" placeholder="형식:
 -MM월 DD일-
 
 < 발신인 / 00:00 / 수신인 >
@@ -576,18 +589,18 @@
         </label>
         
         <div class="switch-row">
-    <span>입력중 표시 (발신인)</span>
+    <span>입력 중 표시</span>
     <label class="switch">
         <input type="checkbox" id="showTyping">
         <span class="slider"></span>
     </label>
-</div>
-
+        </div>
+        
         <label style="margin-top: 15px;">
             배터리
             <div class="battery-input-group">
-                <input type="number" id="batteryInput" min="0" max="100" value="83" onchange="updateBattery()">
-                <span>%</span>
+                <input type="number" id="batteryInput" min="0" max="100" value="100" onchange="updateBattery()">
+                <span><b>%</b></span>
             </div>
         </label>
         
@@ -622,9 +635,9 @@
                 <span id="timeDisplay">00:00</span>
             </div>
             <div class="status-right">
-                <span class="battery-percent dark" id="batteryPercent">83<b>%</b></span>
+                <span class="battery-percent dark" id="batteryPercent">100<b>%</b></span>
                 <div class="battery-icon dark" id="batteryIcon">
-                    <div class="battery-fill dark" id="batteryFill" style="width: 83%;"></div>
+                    <div class="battery-fill dark" id="batteryFill" style="width: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -941,7 +954,7 @@
             document.getElementById('showTyping').checked = false;
 
             // 배터리 초기화
-            document.getElementById('batteryInput').value = 83;
+            document.getElementById('batteryInput').value = 100;
             updateBattery();
         }
 
