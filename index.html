@@ -1,40 +1,967 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>PAPER EDITION / WORKSPACE</title>
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<style>
-:root{
-  --paper:#eee9dc;
-  --ink:#111214;
-  --muted:#77736b;
-  --blue:#2857d8;
-  --red:#c54d3f;
-  --screen:#cfc9bb;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문자 메시지 제너레이터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a1a1a;
+            padding: 20px;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+                padding: 10px;
+            }
+        }
+
+        .iphone-container {
+            width: 390px;
+            height: 844px;
+            background: #000;
+            border-radius: 55px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            border: 12px solid #000;
+        }
+
+        .dynamic-island {
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px;
+            height: 37px;
+            background: #000;
+            border-radius: 19px;
+            z-index: 1000;
+        }
+
+        .status-bar {
+            height: 54px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            font-size: 15px;
+            font-weight: 600;
+            position: relative;
+            z-index: 999;
+        }
+
+        .status-bar.light {
+            color: #000;
+            background: #f6f6f6;
+        }
+
+        .status-bar.dark {
+            color: #fff;
+            background: #1C1C1E;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            height: 100%;
+        }
+
+        .battery-percent {
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    position: relative;
+    top: 3px;
 }
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--screen);color:var(--ink)}
-body{
-  font-family:'Pretendard',sans-serif;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+
+.battery-percent.light {
+    color: #000;
 }
-body:before{
-  content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;z-index:20;
-  background-image:radial-gradient(#111 0.55px,transparent .55px);
-  background-size:4px 4px;
+
+.battery-percent.dark {
+    color: #fff;
 }
-.wrap{
-  width:min(1220px,100%);
-  margin:0 auto;
-  padding:24px;
-  display:grid;
-  grid-template-columns:390px minmax(0,1fr);
-  gap:28px;
-  position:relative;
+
+.battery-icon {
+    width: 27px;
+    height: 13px;
+    border-radius: 3px;
+    position: relative;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    top: 3px;
+}
+
+        .battery-icon.light {
+            border: 2px solid #000;
+        }
+
+        .battery-icon.dark {
+            border: 2px solid #fff;
+        }
+
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 6px;
+            border-radius: 0 1px 1px 0;
+        }
+
+        .battery-icon.light::after {
+            background: #000;
+        }
+
+        .battery-icon.dark::after {
+            background: #fff;
+        }
+
+        .battery-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .battery-fill.light {
+            background: #000;
+        }
+
+        .battery-fill.dark {
+            background: #fff;
+        }
+
+        .imessage-screen {
+            height: calc(100% - 54px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .imessage-screen.light {
+            background: #f6f6f6;
+        }
+
+        .imessage-screen.dark {
+            background: #1C1C1E;
+        }
+
+        .message-header {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid;
+            position: relative;
+        }
+
+        .message-header.light {
+            background: #f6f6f6;
+            border-bottom-color: #c6c6c8 !important;
+        }
+
+        .message-header.dark {
+            background: #1C1C1E;
+            border-bottom-color: #545458 !important;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: absolute;
+            left: 20px;
+        }
+
+        .back-button {
+            color: #007AFF;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .contact-name {
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .contact-name.light {
+            color: #000000 !important;
+        }
+
+        .contact-name.dark {
+            color: #ffffff !important;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            position: absolute;
+            right: 20px;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 40px;
+        }
+
+        .date-divider {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.3px;
+        }
+
+        .date-divider.light {
+            color: #8e8e93;
+        }
+
+        .date-divider.dark {
+            color: #8e8e93;
+        }
+
+        .message-group {
+            margin-bottom: 15px;
+        }
+
+        .message-bubble {
+            max-width: 260px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .message-sent {
+            background: #0a84ff !important;
+            color: #fff !important;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-received {
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-received.light {
+            background: #e5e5ea !important;
+            color: #000000 !important;
+        }
+
+        .message-received.dark {
+            background: #2c2c2e !important;
+            color: #ffffff !important;
+        }
+
+        .message-time {
+            font-size: 12px;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message-time.light {
+            color: #8e8e93;
+        }
+
+        .message-time.dark {
+            color: #8e8e93;
+        }
+
+        .message-time.sent {
+            text-align: right;
+        }
+
+        .message-time.received {
+            text-align: left;
+        }
+
+        .imsg-typing {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .imsg-typing-bubble {
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            padding: 10px 14px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .imsg-typing-bubble.light {
+            background: #e5e5ea;
+        }
+
+        .imsg-typing-bubble.dark {
+            background: #2c2c2e;
+        }
+
+        .imsg-typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: typing-bounce 1.4s ease-in-out infinite;
+        }
+
+        .imsg-typing-dot.light {
+            background: rgba(0,0,0,0.3);
+        }
+
+        .imsg-typing-dot.dark {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .imsg-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .imsg-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing-bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+        }
+
+        .controls {
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 15px;
+            color: #fff;
+            width: 350px;
+            max-width: 100%;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 1025px) {
+            .controls {
+                position: static;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .controls {
+                position: static;
+                width: 100%;
+                max-width: 390px;
+            }
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .controls label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .controls input, .controls textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: none;
+            background: #2c2c2e;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        .controls textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .controls button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #007AFF;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .controls button:hover {
+            background: #0051D5;
+        }
+
+        .controls button.secondary {
+            background: #5856D6;
+        }
+
+        .controls button.secondary:hover {
+            background: #4745B8;
+        }
+
+        .theme-toggle {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .theme-toggle button {
+            flex: 1;
+            margin: 0;
+        }
+
+        .theme-toggle button.active {
+            background: #34C759;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        #timeDisplay {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
+            top: 3px;
+        }
+
+        .battery-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .battery-input-group input[type="number"] {
+            width: 60px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        .battery-input-group span {
+            color: #8e8e93;
+        }
+        
+        .switch-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: 0.3s;
+}
+
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    top: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+/* 입력중 표시 버튼 슬라이드 패딩*/
+.switch input:checked + .slider {
+    background-color: #34C759; /* iOS 초록 */
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+.switch {
+    position: relative;
+    top: 5px;
+}
+
+/* 둥글둥글 */
+.controls button {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s ease;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h3>메시지 입력</h3>
+        
+        <label>
+            내가 누구인지 선택
+            <div class="theme-toggle" style="margin-top: 8px;">
+                <button onclick="setMe('first')" id="meFirst">발신인</button>
+                <button onclick="setMe('second')" id="meSecond" class="active">수신인</button>
+            </div>
+            <small style="color: #8e8e93; display: block; margin-top: 5px;">예: 발신인/수신인 중 누가 '나'인지 선택</small>
+        </label>
+        
+        <label style="margin-top: 15px;">
+            메시지 내용<br>
+            <textarea id="messageInput" placeholder="형식:
+-MM월 DD일-
+
+< 발신인 / 00:00 / 수신인 >
+[메시지 1]
+[메시지 2]
+
+< 수신인 / 00:00 / 발신인 >
+[메시지 3]
+[메시지 4]"></textarea>
+        </label>
+        
+        <div class="switch-row">
+    <span>입력 중 표시</span>
+    <label class="switch">
+        <input type="checkbox" id="showTyping">
+        <span class="slider"></span>
+    </label>
+        </div>
+        
+        <label style="margin-top: 15px;">
+            배터리
+            <div class="battery-input-group">
+                <input type="number" id="batteryInput" min="0" max="100" value="100" onchange="updateBattery()">
+                <span><b>%</b></span>
+            </div>
+        </label>
+        
+        <label style="margin-top: 15px;">
+            테마 선택
+            <div class="theme-toggle">
+                <button onclick="setTheme('light')">라이트</button>
+                <button onclick="setTheme('dark')" class="active">다크</button>
+            </div>
+        </label>
+        
+        <label style="margin-top: 15px;">
+            설정
+        <button onclick="renderMessages()"style="background: #007AFF; margin-top: 5px;">메시지 생성</button>
+        <button onclick="resetAll()" style="background:#FF3B30; margin-top:5px;">
+            내용 초기화
+        </button>
+        </label>
+        
+        <label style="margin-top: 15px;">
+            사진 저장
+        <button onclick="saveAsImage()" style="background: #007AFF; margin-top: 5px;">이미지로 저장 (화면)</button>
+        <button onclick="saveFullAsImage()" style="background: #34C759; margin-top: 5px;" class="secondary">이미지로 저장 (전체)</button>
+        </label>
+    </div>
+
+    <div class="iphone-container">
+        <div class="dynamic-island"></div>
+        
+        <div class="status-bar dark" id="statusBar">
+            <div class="status-left">
+                <span id="timeDisplay">00:00</span>
+            </div>
+            <div class="status-right">
+                <span class="battery-percent dark" id="batteryPercent">100<b>%</b></span>
+                <div class="battery-icon dark" id="batteryIcon">
+                    <div class="battery-fill dark" id="batteryFill" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="imessage-screen dark" id="imessageScreen">
+            <div class="message-header dark" id="messageHeader">
+                <div class="header-left">
+                    <span class="back-button"><b>‹ 메시지</b></span>
+                </div>
+                <div class="contact-name dark" id="contactName">대화 상대</div>
+                <div class="header-right">
+                </div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        let currentTheme = 'dark';
+        let mePosition = 'second';
+
+        function setMe(position) {
+            mePosition = position;
+            document.getElementById('meFirst').classList.remove('active');
+            document.getElementById('meSecond').classList.remove('active');
+            document.getElementById('me' + (position === 'first' ? 'First' : 'Second')).classList.add('active');
+            
+            if (document.getElementById('messagesContainer').children.length > 0) {
+                renderMessages();
+            }
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            const elements = ['statusBar', 'imessageScreen', 'messageHeader', 'batteryPercent', 'batteryIcon', 'batteryFill'];
+            
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('light', 'dark');
+                el.classList.add(theme);
+            });
+
+            document.getElementById('contactName').classList.remove('light', 'dark');
+            document.getElementById('contactName').classList.add(theme);
+
+            document.querySelectorAll('.theme-toggle button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            if (document.getElementById('messagesContainer').children.length > 0) {
+                renderMessages();
+            }
+        }
+
+        function updateBattery() {
+            let value = parseInt(document.getElementById('batteryInput').value);
+            
+            // 값 검증
+            if (isNaN(value) || value < 0) value = 0;
+            if (value > 100) value = 100;
+            
+            document.getElementById('batteryInput').value = value;
+            document.getElementById('batteryPercent').innerHTML = value + '<b>%</b>';
+            document.getElementById('batteryFill').style.width = value + '%';
+        }
+
+        function renderMessages() {
+            const input = document.getElementById('messageInput').value.trim();
+            const container = document.getElementById('messagesContainer');
+            const showTyping = document.getElementById('showTyping').checked;
+            container.innerHTML = '';
+
+            if (!input) return;
+
+            const lines = input.split('\n').filter(line => line.trim());
+            let currentHeader = null;
+            let firstPerson = null;
+            let secondPerson = null;
+            let lastTime = '';
+            let messageGroups = [];
+            let currentGroup = null;
+
+            // 헤더별로 메시지 그룹화 및 날짜 처리
+            lines.forEach(line => {
+                line = line.trim();
+                
+                // 날짜 감지: -m월 d일- 형식
+                if (line.startsWith('-') && line.endsWith('-')) {
+                    const dateText = line.substring(1, line.length - 1);
+                    messageGroups.push({
+                        type: 'date',
+                        text: dateText
+                    });
+                }
+                else if (line.startsWith('<') && line.includes('>')) {
+                    const headerMatch = line.match(/<(.+?)>/);
+                    if (headerMatch) {
+                        const headerContent = headerMatch[1];
+                        const parts = headerContent.split('/').map(s => s.trim());
+                        
+                        if (parts.length >= 3) {
+                            const [sender, time, receiver] = parts;
+                            
+                            if (!firstPerson) {
+                                firstPerson = sender;
+                                secondPerson = receiver;
+                            }
+                            
+                            lastTime = time;
+                            
+                            // 새로운 그룹 시작
+                            currentGroup = {
+                                type: 'message',
+                                sender,
+                                time,
+                                receiver,
+                                messages: []
+                            };
+                            messageGroups.push(currentGroup);
+                        }
+                    }
+                }
+                else if (line.startsWith('[') && line.endsWith(']') && currentGroup && currentGroup.type === 'message') {
+                    const content = line.substring(1, line.length - 1);
+                    currentGroup.messages.push(content);
+                }
+            });
+
+            // 각 그룹을 렌더링
+            messageGroups.forEach(group => {
+                if (group.type === 'date') {
+                    // 날짜 구분선 추가
+                    const dateDiv = document.createElement('div');
+                    dateDiv.className = `date-divider ${currentTheme}`;
+                    dateDiv.textContent = group.text;
+                    container.appendChild(dateDiv);
+                } else if (group.type === 'message') {
+                    group.messages.forEach((content, index) => {
+                        const isLastInGroup = index === group.messages.length - 1;
+                        addMessageToContainer(container, {
+                            sender: group.sender,
+                            time: group.time,
+                            receiver: group.receiver,
+                            content: content
+                        }, firstPerson, secondPerson, isLastInGroup);
+                    });
+                }
+            });
+
+            // 입력중 표시 추가
+            if (showTyping && firstPerson && secondPerson) {
+                const myName = mePosition === 'first' ? firstPerson : secondPerson;
+                const otherName = mePosition === 'first' ? secondPerson : firstPerson;
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'imsg-typing';
+                typingDiv.innerHTML = `
+                    <div class="imsg-typing-bubble ${currentTheme}">
+                        <div class="imsg-typing-dot ${currentTheme}"></div>
+                        <div class="imsg-typing-dot ${currentTheme}"></div>
+                        <div class="imsg-typing-dot ${currentTheme}"></div>
+                    </div>
+                `;
+                container.appendChild(typingDiv);
+            }
+
+            if (firstPerson && secondPerson) {
+                const myName = mePosition === 'first' ? firstPerson : secondPerson;
+                const otherName = mePosition === 'first' ? secondPerson : firstPerson;
+                document.getElementById('contactName').textContent = otherName;
+            }
+
+            if (lastTime) {
+                const timeWithoutAMPM = lastTime.replace(/\s*(AM|PM|am|pm)\s*/g, '').trim();
+                document.getElementById('timeDisplay').textContent = timeWithoutAMPM;
+            }
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addMessageToContainer(container, message, firstPerson, secondPerson, showTime) {
+            const myName = mePosition === 'first' ? firstPerson : secondPerson;
+            const isSent = message.sender === myName;
+            
+            const messageGroup = document.createElement('div');
+            messageGroup.className = 'message-group';
+            messageGroup.style.display = 'flex';
+            messageGroup.style.flexDirection = 'column';
+            messageGroup.style.alignItems = isSent ? 'flex-end' : 'flex-start';
+            messageGroup.style.marginBottom = showTime ? '15px' : '0px';
+
+            const bubble = document.createElement('div');
+            bubble.className = isSent ? 'message-bubble message-sent' : `message-bubble message-received ${currentTheme}`;
+            bubble.textContent = message.content;
+            bubble.style.whiteSpace = 'pre-wrap';
+            bubble.style.marginBottom = '4px';
+
+            messageGroup.appendChild(bubble);
+
+            // 그룹의 마지막 메시지에만 시간 표시
+            if (showTime) {
+                const timeEl = document.createElement('div');
+                timeEl.className = `message-time ${currentTheme} ${isSent ? 'sent' : 'received'}`;
+                timeEl.textContent = message.time;
+                timeEl.style.marginBottom = '0px';
+                messageGroup.appendChild(timeEl);
+            }
+
+            container.appendChild(messageGroup);
+        }
+
+        async function saveAsImage() {
+            const phoneContainer = document.querySelector('.iphone-container');
+            
+            const originalBg = document.body.style.background;
+            document.body.style.background = 'transparent';
+            
+            const canvas = await html2canvas(phoneContainer, {
+                backgroundColor: null,
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            });
+            
+            document.body.style.background = originalBg;
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'imessage-' + Date.now() + '.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+
+        async function saveFullAsImage() {
+            const messagesContainer = document.querySelector('.messages-container');
+            const phoneContainer = document.querySelector('.iphone-container');
+            
+            // 스크롤 높이 계산
+            const fullHeight = messagesContainer.scrollHeight;
+            const viewportHeight = messagesContainer.clientHeight;
+            
+            if (fullHeight <= viewportHeight) {
+                // 스크롤이 필요없으면 일반 저장
+                saveAsImage();
+                return;
+            }
+
+            // 임시로 높이 조정
+            const originalHeight = phoneContainer.style.height;
+            const originalOverflow = messagesContainer.style.overflow;
+            const originalScrollTop = messagesContainer.scrollTop;
+            
+            // 컨테이너 높이를 전체 컨텐츠 높이로 확장
+            const headerHeight = document.querySelector('.message-header').offsetHeight;
+            const statusBarHeight = document.querySelector('.status-bar').offsetHeight;
+            const newHeight = fullHeight + headerHeight + statusBarHeight + 24; // 24는 패딩
+            
+            phoneContainer.style.height = newHeight + 'px';
+            messagesContainer.style.overflow = 'visible';
+            messagesContainer.scrollTop = 0;
+
+            const originalBg = document.body.style.background;
+            document.body.style.background = 'transparent';
+
+            // 잠시 대기 (렌더링 완료)
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const canvas = await html2canvas(phoneContainer, {
+                backgroundColor: null,
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                height: newHeight,
+                windowHeight: newHeight
+            });
+            
+            // 원래대로 복원
+            phoneContainer.style.height = originalHeight;
+            messagesContainer.style.overflow = originalOverflow;
+            messagesContainer.scrollTop = originalScrollTop;
+            document.body.style.background = originalBg;
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'imessage-full-' + Date.now() + '.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+
+        function resetAll() {
+            // 입력창 초기화
+            document.getElementById('messageInput').value = '';
+
+            // 메시지 화면 비우기
+            document.getElementById('messagesContainer').innerHTML = '';
+
+            // 상단 이름/시간 초기화
+            document.getElementById('contactName').textContent = '대화 상대';
+            document.getElementById('timeDisplay').textContent = '00:00';
+
+            // 입력중 체크 해제
+            document.getElementById('showTyping').checked = false;
+
+            // 배터리 초기화
+            document.getElementById('batteryInput').value = 100;
+            updateBattery();
+        }
+
+        renderMessages();
+    </script>
+</body>
+</html>  position:relative;
 }
 @media(max-width:860px){
   .wrap{grid-template-columns:1fr;padding:12px;}
