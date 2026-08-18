@@ -1,581 +1,379 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>문자 메시지 제너레이터</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문자 메시지 제너레이터</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: #1a1a1a;
-            padding: 20px;
-            flex-direction: row;
-            gap: 20px;
-        }
-
-        @media (max-width: 1024px) {
-            body {
-                flex-direction: column;
-                padding: 10px;
-            }
-        }
-
-        .iphone-container {
-            width: 390px;
-            height: 844px;
-            background: #000;
-            border-radius: 55px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
-            border: 12px solid #000;
-        }
-
-        .dynamic-island {
-            position: absolute;
-            top: 11px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 126px;
-            height: 37px;
-            background: #000;
-            border-radius: 19px;
-            z-index: 1000;
-        }
-
-        .status-bar {
-            height: 54px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            font-size: 15px;
-            font-weight: 600;
-            position: relative;
-            z-index: 999;
-        }
-
-        .status-bar.light {
-            color: #000;
-            background: #f6f6f6;
-        }
-
-        .status-bar.dark {
-            color: #fff;
-            background: #1C1C1E;
-        }
-
-        .status-left {
-            display: flex;
-            align-items: center;
-            height: 100%;
-        }
-
-        .status-right {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            height: 100%;
-        }
-
-        .battery-percent {
-    font-size: 15px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    line-height: 1;
-    position: relative;
-    top: 3px;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    min-height:100vh;
+    background:#1a1a1a;
+    padding:24px;
+    flex-direction:row;
+    gap:24px;
 }
 
-.battery-percent.light {
-    color: #000;
+@media (max-width: 1024px) {
+    body { flex-direction:column; align-items:center; padding:12px; gap:16px; }
 }
 
-.battery-percent.dark {
-    color: #fff;
+/* ============ CONTROLS PANEL ============ */
+.controls {
+    background:#151517;
+    padding:22px;
+    border-radius:18px;
+    color:#fff;
+    width:360px;
+    max-width:100%;
+    flex-shrink:0;
+    box-shadow:0 8px 30px rgba(0,0,0,.4);
 }
+
+@media (max-width:1024px) {
+    .controls { width:100%; max-width:440px; padding:18px; }
+}
+
+.controls h3 { margin-bottom:4px; font-size:17px; font-weight:700; }
+.controls .subtitle { color:#8e8e93; font-size:12.5px; margin-bottom:16px; }
+
+.section {
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid #2a2a2d;
+}
+.section:first-of-type { margin-top:16px; padding-top:16px; border-top:1px solid #2a2a2d; }
+
+.section-title {
+    font-size:12.5px;
+    font-weight:700;
+    color:#8e8e93;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.controls label { display:block; margin-bottom:10px; font-size:13.5px; color:#d1d1d6; }
+
+.controls input[type="text"], .controls input[type="number"], .controls textarea, .controls select {
+    width:100%;
+    padding:9px 10px;
+    margin-top:6px;
+    border-radius:9px;
+    border:1px solid #2f2f33;
+    background:#1f1f22;
+    color:#fff;
+    font-family:inherit;
+    font-size:13.5px;
+}
+
+.controls textarea { min-height:130px; resize:vertical; line-height:1.5; }
+
+.md-hint {
+    font-size:11.5px;
+    color:#6f6f76;
+    margin-top:6px;
+    line-height:1.6;
+}
+.md-hint code { background:#252528; padding:1px 5px; border-radius:4px; color:#c7c7cc; }
+
+.controls button {
+    padding:10px;
+    border-radius:11px;
+    border:none;
+    background:#007AFF;
+    color:#fff;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+    transition:background .15s ease, opacity .15s ease;
+}
+.controls button:hover { opacity:.88; }
+.controls button.secondary { background:#5856D6; }
+.controls button.danger { background:#FF3B30; }
+.controls button.grey { background:#3a3a3d; }
+
+.btn-row { display:flex; gap:8px; margin-top:8px; }
+.btn-row button { flex:1; }
+.btn-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+.btn-grid button.full { grid-column:1 / -1; }
+
+.toggle-group { display:flex; gap:8px; }
+.toggle-group button {
+    flex:1;
+    background:#1f1f22;
+    color:#9a9aa0;
+    border:1px solid #2f2f33;
+}
+.toggle-group button.active { background:#34C759; color:#fff; border-color:#34C759; }
+.toggle-group button.active.blue { background:#007AFF; border-color:#007AFF; }
+
+.switch-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13.5px;
+    color:#d1d1d6;
+    margin-bottom:12px;
+}
+.switch { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.slider { position:absolute; cursor:pointer; inset:0; background:#3a3a3d; border-radius:34px; transition:.2s; }
+.slider::before { position:absolute; content:""; height:18px; width:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+.switch input:checked + .slider { background:#34C759; }
+.switch input:checked + .slider::before { transform:translateX(20px); }
+
+.battery-input-group { display:flex; align-items:center; gap:8px; }
+.battery-input-group input { width:70px; text-align:center; margin-top:0; }
+.battery-input-group span { color:#8e8e93; font-size:13px; }
+
+.lang-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.lang-grid button { padding:8px 4px; font-size:12.5px; }
+
+/* ============ PHONE MOCKUP ============ */
+.phone-scale-wrap {
+    width:390px;
+}
+@media (max-width: 460px) {
+    .phone-scale-wrap {
+        width:min(390px, 92vw);
+    }
+    .phone-scale-wrap .iphone-container {
+        width:100%;
+        height:auto;
+        aspect-ratio:390/844;
+    }
+}
+
+.iphone-container {
+    width:390px;
+    height:844px;
+    background:#000;
+    border-radius:55px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    position:relative;
+    overflow:hidden;
+    border:12px solid #000;
+}
+
+.dynamic-island {
+    position:absolute;
+    top:11px;
+    left:50%;
+    transform:translateX(-50%);
+    width:126px;
+    height:37px;
+    background:#000;
+    border-radius:19px;
+    z-index:1000;
+}
+
+.status-bar {
+    height:50px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 24px;
+    font-size:15px;
+    font-weight:600;
+    position:relative;
+    z-index:999;
+}
+.status-bar.light { color:#000; background:#f6f6f6; }
+.status-bar.dark { color:#fff; background:#1C1C1E; }
+
+.status-left { display:flex; align-items:center; line-height:1; }
+.status-right { display:flex; align-items:center; gap:5px; line-height:1; }
+.status-icon { display:flex; align-items:center; }
+.status-icon svg { display:block; }
+
+.battery-percent { font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; }
+.battery-percent.light { color:#000; }
+.battery-percent.dark { color:#fff; }
 
 .battery-icon {
-    width: 27px;
-    height: 13px;
-    border-radius: 3px;
-    position: relative;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    top: 3px;
+    width:24px; height:12px; border-radius:3.5px;
+    position:relative; padding:1.5px;
+    display:flex; align-items:center; opacity:.95;
 }
-
-        .battery-icon.light {
-            border: 2px solid #000;
-        }
-
-        .battery-icon.dark {
-            border: 2px solid #fff;
-        }
-
-        .battery-icon::after {
-            content: '';
-            position: absolute;
-            right: -4px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 2px;
-            height: 6px;
-            border-radius: 0 1px 1px 0;
-        }
-
-        .battery-icon.light::after {
-            background: #000;
-        }
-
-        .battery-icon.dark::after {
-            background: #fff;
-        }
-
-        .battery-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-        }
-
-        .battery-fill.light {
-            background: #000;
-        }
-
-        .battery-fill.dark {
-            background: #fff;
-        }
-
-        .imessage-screen {
-            height: calc(100% - 54px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .imessage-screen.light {
-            background: #f6f6f6;
-        }
-
-        .imessage-screen.dark {
-            background: #1C1C1E;
-        }
-
-        .message-header {
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid;
-            position: relative;
-        }
-
-        .message-header.light {
-            background: #f6f6f6;
-            border-bottom-color: #c6c6c8 !important;
-        }
-
-        .message-header.dark {
-            background: #1C1C1E;
-            border-bottom-color: #545458 !important;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: absolute;
-            left: 20px;
-        }
-
-        .back-button {
-            color: #007AFF;
-            font-size: 17px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .contact-name {
-            font-size: 17px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .contact-name.light {
-            color: #000000 !important;
-        }
-
-        .contact-name.dark {
-            color: #ffffff !important;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 15px;
-            position: absolute;
-            right: 20px;
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 40px;
-        }
-
-        .date-divider {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 13px;
-            font-weight: 700;
-            font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 0.3px;
-        }
-
-        .date-divider.light {
-            color: #8e8e93;
-        }
-
-        .date-divider.dark {
-            color: #8e8e93;
-        }
-
-        .message-group {
-            margin-bottom: 15px;
-        }
-
-        .message-bubble {
-            max-width: 260px;
-            padding: 10px 15px;
-            border-radius: 18px;
-            margin-bottom: 4px;
-            word-wrap: break-word;
-            font-size: 16px;
-            line-height: 1.4;
-        }
-
-        .message-sent {
-            background: #0a84ff !important;
-            color: #fff !important;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-received {
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message-received.light {
-            background: #e5e5ea !important;
-            color: #000000 !important;
-        }
-
-        .message-received.dark {
-            background: #2c2c2e !important;
-            color: #ffffff !important;
-        }
-
-        .message-time {
-            font-size: 12px;
-            margin-top: 4px;
-            text-align: right;
-        }
-
-        .message-time.light {
-            color: #8e8e93;
-        }
-
-        .message-time.dark {
-            color: #8e8e93;
-        }
-
-        .message-time.sent {
-            text-align: right;
-        }
-
-        .message-time.received {
-            text-align: left;
-        }
-
-        .imsg-typing {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .imsg-typing-bubble {
-            border-radius: 18px;
-            border-bottom-left-radius: 5px;
-            padding: 10px 14px;
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .imsg-typing-bubble.light {
-            background: #e5e5ea;
-        }
-
-        .imsg-typing-bubble.dark {
-            background: #2c2c2e;
-        }
-
-        .imsg-typing-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            animation: typing-bounce 1.4s ease-in-out infinite;
-        }
-
-        .imsg-typing-dot.light {
-            background: rgba(0,0,0,0.3);
-        }
-
-        .imsg-typing-dot.dark {
-            background: rgba(255,255,255,0.5);
-        }
-
-        .imsg-typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .imsg-typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typing-bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-5px); }
-        }
-
-        .controls {
-            background: rgba(0,0,0,0.8);
-            padding: 20px;
-            border-radius: 15px;
-            color: #fff;
-            width: 350px;
-            max-width: 100%;
-            flex-shrink: 0;
-        }
-
-        @media (min-width: 1025px) {
-            .controls {
-                position: static;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .controls {
-                position: static;
-                width: 100%;
-                max-width: 390px;
-            }
-        }
-
-        .controls h3 {
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        .controls label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .controls input, .controls textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: none;
-            background: #2c2c2e;
-            color: #fff;
-            font-family: inherit;
-        }
-
-        .controls textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .controls button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: none;
-            background: #007AFF;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .controls button:hover {
-            background: #0051D5;
-        }
-
-        .controls button.secondary {
-            background: #5856D6;
-        }
-
-        .controls button.secondary:hover {
-            background: #4745B8;
-        }
-
-        .theme-toggle {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-        }
-
-        .theme-toggle button {
-            flex: 1;
-            margin: 0;
-        }
-
-        .theme-toggle button.active {
-            background: #34C759;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .checkbox-container input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-        }
-
-        #timeDisplay {
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-            font-feature-settings: "tnum";
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            position: relative;
-            top: 3px;
-        }
-
-        .battery-input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .battery-input-group input[type="number"] {
-            width: 60px;
-            padding: 6px 8px;
-            text-align: center;
-        }
-
-        .battery-input-group span {
-            color: #8e8e93;
-        }
-        
-        .switch-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    font-size: 14px;
-    font-weight: 600;
+.battery-icon.light { border:1.3px solid #000; }
+.battery-icon.dark { border:1.3px solid #fff; }
+.battery-icon::after {
+    content:''; position:absolute; right:-3px; top:50%;
+    transform:translateY(-50%); width:1.5px; height:4px;
+    border-radius:0 1px 1px 0; opacity:.95;
 }
+.battery-icon.light::after { background:#000; }
+.battery-icon.dark::after { background:#fff; }
+.battery-fill { height:100%; border-radius:1.5px; transition:width .3s ease; }
+.battery-fill.light { background:#000; }
+.battery-fill.dark { background:#fff; }
 
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
+.imessage-screen { height:calc(100% - 50px); display:flex; flex-direction:column; }
+.imessage-screen.light { background:#f6f6f6; --bg:#f6f6f6; }
+.imessage-screen.dark { background:#1C1C1E; --bg:#1C1C1E; }
+
+.message-header {
+    padding:8px 20px 10px;
+    display:flex; align-items:center; justify-content:center;
+    border-bottom:1px solid;
+    position:relative;
 }
+.message-header.light { background:#f6f6f6; border-bottom-color:#c6c6c8 !important; }
+.message-header.dark { background:#1C1C1E; border-bottom-color:#545458 !important; }
 
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+.header-left { display:flex; align-items:center; gap:5px; position:absolute; left:20px; }
+.back-button { color:#007AFF; font-size:17px; display:flex; align-items:center; gap:5px; }
+
+.header-center { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.contact-avatar {
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:600; color:#fff;
+    background:linear-gradient(160deg,#a7acb3,#7c8087);
 }
+.contact-name { font-size:12px; font-weight:500; text-align:center; display:flex; align-items:center; gap:2px; }
+.contact-name.light { color:#000 !important; }
+.contact-name.dark { color:#fff !important; }
+.contact-name .chev { font-size:11px; opacity:.45; }
 
-.slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background-color: #ccc;
-    border-radius: 34px;
-    transition: 0.3s;
+.header-right { display:flex; gap:15px; position:absolute; right:20px; }
+
+.messages-container { flex:1; overflow-y:auto; padding:16px 16px 8px; }
+
+.date-divider {
+    text-align:center; margin:18px 0; font-size:13px; font-weight:700;
+    font-variant-numeric:tabular-nums; letter-spacing:.3px;
 }
+.date-divider.light { color:#8e8e93; }
+.date-divider.dark { color:#8e8e93; }
 
-.slider::before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    top: 3px;
-    background-color: white;
-    border-radius: 50%;
-    transition: 0.3s;
+.message-group { margin-bottom:2px; }
+
+.message-bubble {
+    position:relative;
+    max-width:260px;
+    padding:10px 15px;
+    border-radius:18px;
+    margin-bottom:4px;
+    word-wrap:break-word;
+    font-size:16px;
+    line-height:1.4;
 }
+.message-bubble b, .message-bubble strong { font-weight:700; }
+.message-bubble u { text-decoration:underline; }
+.message-bubble s, .message-bubble del { text-decoration:line-through; }
+.message-bubble em, .message-bubble i { font-style:italic; }
 
-/* 입력중 표시 버튼 슬라이드 패딩*/
-.switch input:checked + .slider {
-    background-color: #34C759; /* iOS 초록 */
+.message-sent { background:#0a84ff !important; color:#fff !important; margin-left:auto; }
+.message-received { margin-right:auto; }
+.message-received.light { background:#e5e5ea !important; color:#000 !important; --bubble-bg:#e5e5ea; }
+.message-received.dark { background:#2c2c2e !important; color:#fff !important; --bubble-bg:#2c2c2e; }
+
+/* grouped-bubble corner tightening: only the "joining" top corner softens
+   when a same-sender bubble follows above — otherwise fully rounded. */
+/* corner squaring on the sender-side edge:
+   - a lone bubble (group of 1) only squares its bottom sender-side corner
+   - in a multi-bubble group: the first bubble keeps a round top and squares
+     its bottom (joining corner), the last bubble keeps a round bottom and
+     squares its top, and any bubble in between squares both */
+.message-sent.grp-single { border-bottom-right-radius:6px; }
+.message-received.grp-single { border-bottom-left-radius:6px; }
+
+.message-sent.grp-multi-first { border-bottom-right-radius:6px; }
+.message-received.grp-multi-first { border-bottom-left-radius:6px; }
+
+.message-sent.grp-multi-last { border-top-right-radius:6px; }
+.message-received.grp-multi-last { border-top-left-radius:6px; }
+
+.message-sent.grp-multi-middle { border-top-right-radius:6px; border-bottom-right-radius:6px; }
+.message-received.grp-multi-middle { border-top-left-radius:6px; border-bottom-left-radius:6px; }
+
+.message-time { font-size:12px; margin-top:4px; }
+.message-time.light { color:#8e8e93; }
+.message-time.dark { color:#8e8e93; }
+.message-time.sent { text-align:right; }
+.message-time.received { text-align:left; }
+
+.compose-bar {
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px 14px;
 }
-
-.switch input:checked + .slider::before {
-    transform: translateX(20px);
+.compose-plus {
+    width:30px; height:30px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:400; background:transparent;
 }
+.compose-plus.light { color:#8e8e93; border:1.6px solid #8e8e93; }
+.compose-plus.dark { color:#8e8e93; border:1.6px solid #6a6a6e; }
 
-.switch {
-    position: relative;
-    top: 5px;
+.compose-field {
+    flex:1; height:34px; border-radius:17px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 6px 0 4px;
 }
+.compose-field.light { border:1.3px solid #c6c6c8; }
+.compose-field.dark { border:1.3px solid #4a4a4c; }
 
-/* 둥글둥글 */
-.controls button {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #007AFF;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background 0.15s ease;
+.compose-input-el {
+    flex:1;
+    border:none;
+    background:transparent;
+    outline:none;
+    font-size:15px;
+    font-family:inherit;
+    padding:0 0 0 10px;
+    min-width:0;
 }
+.compose-input-el.light { color:#000; }
+.compose-input-el.light::placeholder { color:#b3b3b8; }
+.compose-input-el.dark { color:#fff; }
+.compose-input-el.dark::placeholder { color:#8e8e93; }
 
+.compose-mic { width:22px; height:22px; display:flex; align-items:center; justify-content:center; opacity:.85; flex-shrink:0; }
+.compose-mic.light { color:#8e8e93; }
+.compose-mic.dark { color:#8e8e93; }
 
-    </style>
+.imsg-typing { display:flex; align-items:flex-end; gap:8px; margin-bottom:15px; }
+.imsg-typing-bubble { border-radius:18px; border-bottom-left-radius:5px; padding:10px 14px; display:flex; gap:4px; align-items:center; }
+.imsg-typing-bubble.light { background:#e5e5ea; }
+.imsg-typing-bubble.dark { background:#2c2c2e; }
+.imsg-typing-dot { width:6px; height:6px; border-radius:50%; animation:typing-bounce 1.4s ease-in-out infinite; }
+.imsg-typing-dot.light { background:rgba(0,0,0,.3); }
+.imsg-typing-dot.dark { background:rgba(255,255,255,.5); }
+.imsg-typing-dot:nth-child(2) { animation-delay:.2s; }
+.imsg-typing-dot:nth-child(3) { animation-delay:.4s; }
+@keyframes typing-bounce { 0%,80%,100%{transform:translateY(0);} 40%{transform:translateY(-5px);} }
+</style>
 </head>
 <body>
     <div class="controls">
-        <h3>메시지 입력</h3>
-        
-        <label>
-            내가 누구인지 선택
-            <div class="theme-toggle" style="margin-top: 8px;">
+        <h3>📱 문자 메시지 제너레이터</h3>
+        <div class="subtitle">아이메시지 스타일 대화 캡처 생성기</div>
+
+        <div class="section" style="margin-top:16px; border-top:none; padding-top:0;">
+            <div class="section-title">내가 누구인지</div>
+            <div class="toggle-group">
                 <button onclick="setMe('first')" id="meFirst">발신인</button>
-                <button onclick="setMe('second')" id="meSecond" class="active">수신인</button>
+                <button onclick="setMe('second')" id="meSecond" class="active blue">수신인</button>
             </div>
-            <small style="color: #8e8e93; display: block; margin-top: 5px;">예: 발신인/수신인 중 누가 '나'인지 선택</small>
-        </label>
-        
-        <label style="margin-top: 15px;">
-            메시지 내용<br>
+            <small style="color:#6f6f76; display:block; margin-top:6px; font-size:11.5px;">발신인/수신인 중 누가 '나'인지 선택</small>
+        </div>
+
+        <div class="section">
+            <div class="section-title">메시지 내용</div>
             <textarea id="messageInput" placeholder="형식:
 -MM월 DD일-
 
@@ -586,58 +384,90 @@
 < 수신인 / 00:00 / 발신인 >
 [메시지 3]
 [메시지 4]"></textarea>
-        </label>
-        
-        <div class="switch-row">
-    <span>입력 중 표시</span>
-    <label class="switch">
-        <input type="checkbox" id="showTyping">
-        <span class="slider"></span>
-    </label>
+            <div class="md-hint">
+                마크다운 지원: <code>**굵게**</code> <code>*기울임*</code> <code>__밑줄__</code> <code>~~취소선~~</code>
+            </div>
         </div>
-        
-        <label style="margin-top: 15px;">
-            배터리
-            <div class="battery-input-group">
+
+        <div class="section">
+            <div class="section-title">옵션</div>
+            <div class="switch-row">
+                <span>입력 중 표시</span>
+                <label class="switch">
+                    <input type="checkbox" id="showTyping">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <label style="margin-bottom:0;">
+                마지막 메시지 상태 (그 외 메시지는 자동으로 '읽음' 표시)
+                <select id="deliveryStatus">
+                    <option value="none">표시 안 함</option>
+                    <option value="delivered" selected>전송됨</option>
+                    <option value="read">읽음</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="section">
+            <div class="section-title">배터리 &amp; 테마</div>
+            <div class="battery-input-group" style="margin-bottom:12px;">
                 <input type="number" id="batteryInput" min="0" max="100" value="100" onchange="updateBattery()">
                 <span><b>%</b></span>
             </div>
-        </label>
-        
-        <label style="margin-top: 15px;">
-            테마 선택
-            <div class="theme-toggle">
-                <button onclick="setTheme('light')">라이트</button>
-                <button onclick="setTheme('dark')" class="active">다크</button>
+            <div class="toggle-group">
+                <button onclick="setTheme('light')" id="themeLight">라이트</button>
+                <button onclick="setTheme('dark')" id="themeDark" class="active">다크</button>
             </div>
-        </label>
-        
-        <label style="margin-top: 15px;">
-            설정
-        <button onclick="renderMessages()"style="background: #007AFF; margin-top: 5px;">메시지 생성</button>
-        <button onclick="resetAll()" style="background:#FF3B30; margin-top:5px;">
-            내용 초기화
-        </button>
-        </label>
-        
-        <label style="margin-top: 15px;">
-            사진 저장
-        <button onclick="saveAsImage()" style="background: #007AFF; margin-top: 5px;">이미지로 저장 (화면)</button>
-        <button onclick="saveFullAsImage()" style="background: #34C759; margin-top: 5px;" class="secondary">이미지로 저장 (전체)</button>
-        </label>
+        </div>
+
+        <div class="section">
+            <div class="section-title">화면 언어 (폰 UI만 번역)</div>
+            <div class="lang-grid">
+                <button onclick="setLang('ko')" id="langKo" class="active blue">한국어</button>
+                <button onclick="setLang('en')" id="langEn">English</button>
+                <button onclick="setLang('zh')" id="langZh">中文</button>
+                <button onclick="setLang('ja')" id="langJa">日本語</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">생성 &amp; 초기화</div>
+            <div class="btn-row">
+                <button onclick="renderMessages()">메시지 생성</button>
+                <button onclick="resetAll()" class="danger">내용 초기화</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">이미지로 저장</div>
+            <div class="btn-grid">
+                <button onclick="saveAsImage()" class="grey">화면만</button>
+                <button onclick="saveFullAsImage()" class="grey">전체 스크롤</button>
+                <button onclick="saveWithBackground()" class="secondary full">배경 포함 저장 (와이드 7:4)</button>
+            </div>
+        </div>
     </div>
 
+    <div class="phone-scale-wrap">
     <div class="iphone-container">
         <div class="dynamic-island"></div>
-        
+
         <div class="status-bar dark" id="statusBar">
             <div class="status-left">
                 <span id="timeDisplay">00:00</span>
             </div>
             <div class="status-right">
+                <span class="status-icon" id="signalIcon">
+                    <svg width="16" height="11" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0" y="7" width="3" height="5" rx="0.8" fill="currentColor"/>
+                        <rect x="4.5" y="5" width="3" height="7" rx="0.8" fill="currentColor"/>
+                        <rect x="9" y="3" width="3" height="9" rx="0.8" fill="currentColor"/>
+                        <rect x="13.5" y="0" width="3" height="12" rx="0.8" fill="currentColor"/>
+                    </svg>
+                </span>
                 <span class="battery-percent dark" id="batteryPercent">100<b>%</b></span>
                 <div class="battery-icon dark" id="batteryIcon">
-                    <div class="battery-fill dark" id="batteryFill" style="width: 100%;"></div>
+                    <div class="battery-fill dark" id="batteryFill" style="width:100%;"></div>
                 </div>
             </div>
         </div>
@@ -645,67 +475,107 @@
         <div class="imessage-screen dark" id="imessageScreen">
             <div class="message-header dark" id="messageHeader">
                 <div class="header-left">
-                    <span class="back-button"><b>‹ 메시지</b></span>
+                    <span class="back-button"><b>‹ <span id="backLabel">메시지</span></b></span>
                 </div>
-                <div class="contact-name dark" id="contactName">대화 상대</div>
-                <div class="header-right">
+                <div class="header-center">
+                    <div class="contact-avatar" id="contactAvatar">?</div>
+                    <div class="contact-name dark" id="contactName">대화 상대 <span class="chev">›</span></div>
                 </div>
+                <div class="header-right"></div>
             </div>
 
-            <div class="messages-container" id="messagesContainer">
+            <div class="messages-container" id="messagesContainer"></div>
+
+            <div class="compose-bar" id="composeBar">
+                <div class="compose-plus dark" id="composePlus">+</div>
+                <div class="compose-field dark" id="composeField">
+                    <input type="text" class="compose-input-el dark" id="composeInput" placeholder="iMessage">
+                    <span class="compose-mic dark" id="composeMic">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5" fill="currentColor"/>
+                            <path d="M3 8.2v.6a5 5 0 0 0 10 0v-.6" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+                            <path d="M8 13.3v1.4M6 14.7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         let currentTheme = 'dark';
         let mePosition = 'second';
+        let currentLang = 'ko';
+
+        const I18N = {
+            ko: { back:'메시지', placeholder:'iMessage', delivered:'전송됨', read:'읽음' },
+            en: { back:'Messages', placeholder:'iMessage', delivered:'Delivered', read:'Read' },
+            zh: { back:'信息',    placeholder:'iMessage', delivered:'已送达',  read:'已读' },
+            ja: { back:'メッセージ', placeholder:'iMessage', delivered:'配信済み', read:'開封済み' }
+        };
 
         function setMe(position) {
             mePosition = position;
-            document.getElementById('meFirst').classList.remove('active');
-            document.getElementById('meSecond').classList.remove('active');
-            document.getElementById('me' + (position === 'first' ? 'First' : 'Second')).classList.add('active');
-            
-            if (document.getElementById('messagesContainer').children.length > 0) {
-                renderMessages();
-            }
+            document.getElementById('meFirst').classList.remove('active','blue');
+            document.getElementById('meSecond').classList.remove('active','blue');
+            document.getElementById('me' + (position === 'first' ? 'First' : 'Second')).classList.add('active','blue');
+            if (document.getElementById('messagesContainer').children.length > 0) renderMessages();
         }
 
         function setTheme(theme) {
             currentTheme = theme;
-            const elements = ['statusBar', 'imessageScreen', 'messageHeader', 'batteryPercent', 'batteryIcon', 'batteryFill'];
-            
+            const elements = ['statusBar','imessageScreen','messageHeader','batteryPercent','batteryIcon','batteryFill','composePlus','composeField','composeInput','composeMic'];
             elements.forEach(id => {
                 const el = document.getElementById(id);
-                el.classList.remove('light', 'dark');
+                el.classList.remove('light','dark');
                 el.classList.add(theme);
             });
-
-            document.getElementById('contactName').classList.remove('light', 'dark');
+            document.getElementById('contactName').classList.remove('light','dark');
             document.getElementById('contactName').classList.add(theme);
 
-            document.querySelectorAll('.theme-toggle button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            document.getElementById('themeLight').classList.remove('active');
+            document.getElementById('themeDark').classList.remove('active');
+            document.getElementById(theme === 'light' ? 'themeLight' : 'themeDark').classList.add('active');
 
-            if (document.getElementById('messagesContainer').children.length > 0) {
-                renderMessages();
-            }
+            if (document.getElementById('messagesContainer').children.length > 0) renderMessages();
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            ['langKo','langEn','langZh','langJa'].forEach(id => document.getElementById(id).classList.remove('active','blue'));
+            const map = { ko:'langKo', en:'langEn', zh:'langZh', ja:'langJa' };
+            document.getElementById(map[lang]).classList.add('active','blue');
+
+            document.getElementById('backLabel').textContent = I18N[lang].back;
+            document.getElementById('composeInput').placeholder = I18N[lang].placeholder;
+
+            if (document.getElementById('messagesContainer').children.length > 0) renderMessages();
         }
 
         function updateBattery() {
             let value = parseInt(document.getElementById('batteryInput').value);
-            
-            // 값 검증
             if (isNaN(value) || value < 0) value = 0;
             if (value > 100) value = 100;
-            
             document.getElementById('batteryInput').value = value;
             document.getElementById('batteryPercent').innerHTML = value + '<b>%</b>';
             document.getElementById('batteryFill').style.width = value + '%';
+        }
+
+        // ---- lightweight markdown: **bold** __underline__ ~~strike~~ *italic* ----
+        function escapeHtml(str) {
+            const d = document.createElement('div');
+            d.innerText = str;
+            return d.innerHTML;
+        }
+        function parseMarkdown(raw) {
+            let s = escapeHtml(raw);
+            s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+            s = s.replace(/__(.+?)__/g, '<u>$1</u>');
+            s = s.replace(/~~(.+?)~~/g, '<s>$1</s>');
+            s = s.replace(/(^|[^*])\*(?!\*)(.+?)\*(?!\*)/g, '$1<i>$2</i>');
+            return s;
         }
 
         function renderMessages() {
@@ -717,85 +587,79 @@
             if (!input) return;
 
             const lines = input.split('\n').filter(line => line.trim());
-            let currentHeader = null;
             let firstPerson = null;
             let secondPerson = null;
             let lastTime = '';
             let messageGroups = [];
             let currentGroup = null;
 
-            // 헤더별로 메시지 그룹화 및 날짜 처리
             lines.forEach(line => {
                 line = line.trim();
-                
-                // 날짜 감지: -m월 d일- 형식
                 if (line.startsWith('-') && line.endsWith('-')) {
-                    const dateText = line.substring(1, line.length - 1);
-                    messageGroups.push({
-                        type: 'date',
-                        text: dateText
-                    });
+                    messageGroups.push({ type:'date', text: line.substring(1, line.length - 1) });
                 }
                 else if (line.startsWith('<') && line.includes('>')) {
                     const headerMatch = line.match(/<(.+?)>/);
                     if (headerMatch) {
-                        const headerContent = headerMatch[1];
-                        const parts = headerContent.split('/').map(s => s.trim());
-                        
+                        const parts = headerMatch[1].split('/').map(s => s.trim());
                         if (parts.length >= 3) {
                             const [sender, time, receiver] = parts;
-                            
-                            if (!firstPerson) {
-                                firstPerson = sender;
-                                secondPerson = receiver;
-                            }
-                            
+                            if (!firstPerson) { firstPerson = sender; secondPerson = receiver; }
                             lastTime = time;
-                            
-                            // 새로운 그룹 시작
-                            currentGroup = {
-                                type: 'message',
-                                sender,
-                                time,
-                                receiver,
-                                messages: []
-                            };
+                            currentGroup = { type:'message', sender, time, receiver, messages:[] };
                             messageGroups.push(currentGroup);
                         }
                     }
                 }
                 else if (line.startsWith('[') && line.endsWith(']') && currentGroup && currentGroup.type === 'message') {
-                    const content = line.substring(1, line.length - 1);
-                    currentGroup.messages.push(content);
+                    currentGroup.messages.push(line.substring(1, line.length - 1));
                 }
             });
 
-            // 각 그룹을 렌더링
-            messageGroups.forEach(group => {
+            let lastMsgGroupIdx = -1, lastMsgIdx = -1;
+            messageGroups.forEach((group, gi) => {
+                if (group.type === 'message' && group.messages.length > 0) {
+                    lastMsgGroupIdx = gi;
+                    lastMsgIdx = group.messages.length - 1;
+                }
+            });
+
+            const statusMode = document.getElementById('deliveryStatus').value;
+
+            messageGroups.forEach((group, gi) => {
                 if (group.type === 'date') {
-                    // 날짜 구분선 추가
                     const dateDiv = document.createElement('div');
                     dateDiv.className = `date-divider ${currentTheme}`;
                     dateDiv.textContent = group.text;
                     container.appendChild(dateDiv);
                 } else if (group.type === 'message') {
+                    const total = group.messages.length;
                     group.messages.forEach((content, index) => {
-                        const isLastInGroup = index === group.messages.length - 1;
+                        const isFirstInGroup = index === 0;
+                        const isLastInGroup = index === total - 1;
+                        const isVeryLastMessage = (gi === lastMsgGroupIdx && index === lastMsgIdx);
+
+                        // Every sent bubble that shows a time gets a read-receipt label:
+                        // the very last message uses the dropdown value; every other
+                        // sent bubble automatically shows "읽음" (read).
+                        let statusForThis = null;
+                        if (isVeryLastMessage) {
+                            if (!showTyping && statusMode !== 'none') statusForThis = statusMode;
+                        } else {
+                            statusForThis = 'read';
+                        }
+
                         addMessageToContainer(container, {
                             sender: group.sender,
                             time: group.time,
                             receiver: group.receiver,
-                            content: content
-                        }, firstPerson, secondPerson, isLastInGroup);
+                            content
+                        }, firstPerson, secondPerson, isLastInGroup, isFirstInGroup, statusForThis, total);
                     });
                 }
             });
 
-            // 입력중 표시 추가
             if (showTyping && firstPerson && secondPerson) {
-                const myName = mePosition === 'first' ? firstPerson : secondPerson;
-                const otherName = mePosition === 'first' ? secondPerson : firstPerson;
-                
                 const typingDiv = document.createElement('div');
                 typingDiv.className = 'imsg-typing';
                 typingDiv.innerHTML = `
@@ -809,9 +673,9 @@
             }
 
             if (firstPerson && secondPerson) {
-                const myName = mePosition === 'first' ? firstPerson : secondPerson;
                 const otherName = mePosition === 'first' ? secondPerson : firstPerson;
-                document.getElementById('contactName').textContent = otherName;
+                document.getElementById('contactName').innerHTML = `${otherName} <span class="chev">›</span>`;
+                document.getElementById('contactAvatar').textContent = otherName.trim().charAt(0) || '?';
             }
 
             if (lastTime) {
@@ -822,139 +686,154 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function addMessageToContainer(container, message, firstPerson, secondPerson, showTime) {
+        function addMessageToContainer(container, message, firstPerson, secondPerson, isLastInGroup, isFirstInGroup, statusMode, groupSize) {
             const myName = mePosition === 'first' ? firstPerson : secondPerson;
             const isSent = message.sender === myName;
-            
+
             const messageGroup = document.createElement('div');
             messageGroup.className = 'message-group';
             messageGroup.style.display = 'flex';
             messageGroup.style.flexDirection = 'column';
             messageGroup.style.alignItems = isSent ? 'flex-end' : 'flex-start';
-            messageGroup.style.marginBottom = showTime ? '15px' : '0px';
+            messageGroup.style.marginBottom = isLastInGroup ? '12px' : '0px';
 
             const bubble = document.createElement('div');
-            bubble.className = isSent ? 'message-bubble message-sent' : `message-bubble message-received ${currentTheme}`;
-            bubble.textContent = message.content;
+            let cls = isSent ? 'message-bubble message-sent' : `message-bubble message-received ${currentTheme}`;
+            if (groupSize <= 1) {
+                cls += ' grp-single';
+            } else if (isFirstInGroup) {
+                cls += ' grp-multi-first';
+            } else if (isLastInGroup) {
+                cls += ' grp-multi-last';
+            } else {
+                cls += ' grp-multi-middle';
+            }
+            bubble.className = cls;
+            bubble.innerHTML = parseMarkdown(message.content);
             bubble.style.whiteSpace = 'pre-wrap';
             bubble.style.marginBottom = '4px';
 
             messageGroup.appendChild(bubble);
 
-            // 그룹의 마지막 메시지에만 시간 표시
-            if (showTime) {
+            if (isLastInGroup) {
                 const timeEl = document.createElement('div');
                 timeEl.className = `message-time ${currentTheme} ${isSent ? 'sent' : 'received'}`;
-                timeEl.textContent = message.time;
+                if (isSent && statusMode) {
+                    const label = statusMode === 'read' ? I18N[currentLang].read : I18N[currentLang].delivered;
+                    timeEl.textContent = `${label}  ${message.time}`;
+                } else {
+                    timeEl.textContent = message.time;
+                }
                 timeEl.style.marginBottom = '0px';
                 messageGroup.appendChild(timeEl);
             }
 
             container.appendChild(messageGroup);
+            return isSent;
         }
 
         async function saveAsImage() {
             const phoneContainer = document.querySelector('.iphone-container');
-            
-            const originalBg = document.body.style.background;
-            document.body.style.background = 'transparent';
-            
             const canvas = await html2canvas(phoneContainer, {
-                backgroundColor: null,
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                allowTaint: true
+                backgroundColor: null, scale: 2, logging: false, useCORS: true, allowTaint: true
             });
-            
-            document.body.style.background = originalBg;
-            
-            canvas.toBlob(function(blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'imessage-' + Date.now() + '.png';
-                a.click();
-                URL.revokeObjectURL(url);
-            }, 'image/png');
+            downloadCanvas(canvas, 'imessage-' + Date.now() + '.png');
         }
 
         async function saveFullAsImage() {
             const messagesContainer = document.querySelector('.messages-container');
             const phoneContainer = document.querySelector('.iphone-container');
-            
-            // 스크롤 높이 계산
+
             const fullHeight = messagesContainer.scrollHeight;
             const viewportHeight = messagesContainer.clientHeight;
-            
-            if (fullHeight <= viewportHeight) {
-                // 스크롤이 필요없으면 일반 저장
-                saveAsImage();
-                return;
-            }
 
-            // 임시로 높이 조정
+            if (fullHeight <= viewportHeight) { saveAsImage(); return; }
+
             const originalHeight = phoneContainer.style.height;
             const originalOverflow = messagesContainer.style.overflow;
             const originalScrollTop = messagesContainer.scrollTop;
-            
-            // 컨테이너 높이를 전체 컨텐츠 높이로 확장
+
             const headerHeight = document.querySelector('.message-header').offsetHeight;
             const statusBarHeight = document.querySelector('.status-bar').offsetHeight;
-            const newHeight = fullHeight + headerHeight + statusBarHeight + 24; // 24는 패딩
-            
+            const composeHeight = document.querySelector('.compose-bar').offsetHeight;
+            const newHeight = fullHeight + headerHeight + statusBarHeight + composeHeight + 24;
+
             phoneContainer.style.height = newHeight + 'px';
             messagesContainer.style.overflow = 'visible';
             messagesContainer.scrollTop = 0;
 
-            const originalBg = document.body.style.background;
-            document.body.style.background = 'transparent';
-
-            // 잠시 대기 (렌더링 완료)
             await new Promise(resolve => setTimeout(resolve, 100));
-            
+
             const canvas = await html2canvas(phoneContainer, {
-                backgroundColor: null,
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                allowTaint: true,
-                height: newHeight,
-                windowHeight: newHeight
+                backgroundColor: null, scale: 2, logging: false, useCORS: true, allowTaint: true,
+                height: newHeight, windowHeight: newHeight
             });
-            
-            // 원래대로 복원
+
             phoneContainer.style.height = originalHeight;
             messagesContainer.style.overflow = originalOverflow;
             messagesContainer.scrollTop = originalScrollTop;
-            document.body.style.background = originalBg;
-            
+
+            downloadCanvas(canvas, 'imessage-full-' + Date.now() + '.png');
+        }
+
+        async function saveWithBackground() {
+            const phone = document.querySelector('.iphone-container');
+            const composeValue = document.getElementById('composeInput').value;
+
+            const clone = phone.cloneNode(true);
+            clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+            const clonedInput = clone.querySelector('.compose-input-el');
+            if (clonedInput) clonedInput.setAttribute('value', composeValue);
+
+            const W = 1750, H = 1000; // wide 7:4 canvas
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'fixed';
+            wrapper.style.left = '-99999px';
+            wrapper.style.top = '0';
+            wrapper.style.width = W + 'px';
+            wrapper.style.height = H + 'px';
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.justifyContent = 'center';
+            wrapper.style.background = currentTheme === 'dark'
+                ? 'radial-gradient(circle at 32% 22%, #3a3a3e, #0b0b0d 72%)'
+                : 'radial-gradient(circle at 32% 22%, #ffffff, #d7dbe2 72%)';
+
+            wrapper.appendChild(clone);
+            document.body.appendChild(wrapper);
+
+            await new Promise(resolve => setTimeout(resolve, 60));
+
+            const canvas = await html2canvas(wrapper, {
+                backgroundColor: null, scale: 1, logging: false, useCORS: true, allowTaint: true,
+                width: W, height: H
+            });
+
+            document.body.removeChild(wrapper);
+            downloadCanvas(canvas, 'imessage-wide-' + Date.now() + '.png');
+        }
+
+        function downloadCanvas(canvas, filename) {
             canvas.toBlob(function(blob) {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'imessage-full-' + Date.now() + '.png';
+                a.download = filename;
                 a.click();
                 URL.revokeObjectURL(url);
             }, 'image/png');
         }
 
         function resetAll() {
-            // 입력창 초기화
             document.getElementById('messageInput').value = '';
-
-            // 메시지 화면 비우기
             document.getElementById('messagesContainer').innerHTML = '';
-
-            // 상단 이름/시간 초기화
-            document.getElementById('contactName').textContent = '대화 상대';
+            document.getElementById('contactName').innerHTML = '대화 상대 <span class="chev">›</span>';
+            document.getElementById('contactAvatar').textContent = '?';
             document.getElementById('timeDisplay').textContent = '00:00';
-
-            // 입력중 체크 해제
             document.getElementById('showTyping').checked = false;
-
-            // 배터리 초기화
+            document.getElementById('deliveryStatus').value = 'delivered';
             document.getElementById('batteryInput').value = 100;
+            document.getElementById('composeInput').value = '';
             updateBattery();
         }
 
